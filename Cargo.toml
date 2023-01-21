@@ -1,0 +1,26 @@
+[package]
+name = "snapup"
+version = "0.1.0"
+edition = "2021"
+authors = ["extremeandy"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/extremeandy/snapup"
+description = "Abstractions for handling snapshots with streams of subsequent updates"
+readme = "README.md"
+
+[dependencies]
+futures = "0.3.28"
+tokio-stream = { version = "0.1.14" }
+im = { version = "15.1.0" }
+itertools = { version = "0.10.5" }
+
+[dev-dependencies]
+streamtools = { version = "0.7.5", features = ["test-util"] }
+tokio = { version = "1.28.0", features = ["rt", "sync", "macros", "time"] }
+tokio-test = "0.4.2"
+
+[build-dependencies]
+rustc_version = "0.4.0"
+
+[package.metadata.docs.rs]
+all-features = true
