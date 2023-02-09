@@ -9,7 +9,7 @@
 //! - `tokio-time`: Enables combinators which depend on the tokio crate and its time feature, in particular:
 //!   - [`sample_by_duration`](crate::StreamExt::sample_by_duration)
 //!   - [`sample_by_interval`](crate::StreamExt::sample_by_interval)
-#![doc(html_root_url = "https://docs.rs/streamtools/0.5.0/")]
+#![doc(html_root_url = "https://docs.rs/streamtools/0.5.1/")]
 
 use futures::Stream;
 
