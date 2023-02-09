@@ -7,7 +7,7 @@ use std::task::{Context, Poll};
 use crate::outer_waker::OuterWaker;
 
 pin_project! {
-    /// Stream for the [`flatten_switch`](super::StreamExt::flatten_switch) method.
+    /// Stream for the [`flatten_switch`](crate::StreamTools::flatten_switch) method.
     #[must_use = "streams do nothing unless polled"]
     pub struct FlattenSwitch<St>
     where

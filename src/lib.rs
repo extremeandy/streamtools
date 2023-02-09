@@ -6,9 +6,9 @@
 //! ## Feature flags
 //!
 //! - `tokio-time`: Enables combinators which depend on the tokio crate and its time feature, in particular:
-//!   - [`sample_by_duration`](crate::StreamExt::sample_by_duration)
-//!   - [`sample_by_interval`](crate::StreamExt::sample_by_interval)
-#![doc(html_root_url = "https://docs.rs/streamtools/0.5.2/")]
+//!   - [`sample_by_duration`](crate::StreamTools::sample_by_duration)
+//!   - [`sample_by_interval`](crate::StreamTools::sample_by_interval)
+#![doc(html_root_url = "https://docs.rs/streamtools/0.5.3/")]
 
 use futures::Stream;
 
@@ -76,12 +76,12 @@ pub trait StreamTools: Stream {
         assert_stream(stream)
     }
 
-    /// Samples values from the stream at intervals of length `duration`. This is a convenience method which invokes [`sample_by_interval`](StreamExt::sample_by_interval).
+    /// Samples values from the stream at intervals of length `duration`. This is a convenience method which invokes [`sample_by_interval`](StreamTools::sample_by_interval).
     ///
     /// The stream terminates when the input stream terminates.
     ///
     /// Uses the default [`MissedTickBehavior`] to create an [`Interval`]. If another is needed, then configure it on an [`Interval`] and
-    /// use [`sample_by_interval`](StreamExt::sample_by_interval) instead of this method.
+    /// use [`sample_by_interval`](StreamTools::sample_by_interval) instead of this method.
     ///
     /// This mirrors the behaviour of the [Sample](https://reactivex.io/documentation/operators/sample.html) operator in [ReactiveX](https://reactivex.io/).
     ///
@@ -98,7 +98,7 @@ pub trait StreamTools: Stream {
         self.sample_by_interval(tokio::time::interval(duration))
     }
 
-    /// Samples values from the stream at intervals. This is a convenience method which invokes [`sample`](StreamExt::sample).
+    /// Samples values from the stream at intervals. This is a convenience method which invokes [`sample`](StreamTools::sample).
     ///
     /// The stream terminates when the input stream terminates.
     ///

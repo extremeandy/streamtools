@@ -6,7 +6,7 @@ use std::{
 };
 
 pin_project! {
-    /// Stream for the [`sample`](super::StreamExt::sample) method.
+    /// Stream for the [`sample`](crate::StreamTools::sample) method.
     #[must_use = "streams do nothing unless polled"]
     pub struct Sample<T, S>
     where

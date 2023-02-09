@@ -4,7 +4,7 @@ use futures::{stream::FusedStream, Stream, StreamExt};
 use pin_project_lite::pin_project;
 
 pin_project! {
-    /// Stream for the [`fast_forward`](super::StreamExt::fast_forward) method.
+    /// Stream for the [`fast_forward`](crate::StreamTools::fast_forward) method.
     #[must_use = "streams do nothing unless polled"]
     pub struct FastForward<S> {
         #[pin]
