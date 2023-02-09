@@ -1,7 +1,8 @@
+use futures::task;
 use futures::Stream;
 use pin_project_lite::pin_project;
 use std::sync::Arc;
-use std::task::{Context, Poll, Waker};
+use std::task::{Context, Poll};
 
 use crate::outer_waker::OuterWaker;
 
@@ -54,7 +55,7 @@ where
         // we were last polled
         let outer_ready = this.outer_waker.set_parent_waker(cx.waker().clone());
         if outer_ready {
-            let waker = Waker::from(Arc::clone(this.outer_waker));
+            let waker = task::waker(Arc::clone(this.outer_waker));
             let mut cx = Context::from_waker(&waker);
             while let Poll::Ready(inner) = this.outer.as_mut().poll_next(&mut cx) {
                 match inner {

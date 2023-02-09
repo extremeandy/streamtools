@@ -1,8 +1,6 @@
-use std::{
-    sync::Arc,
-    task::{Wake, Waker},
-};
+use std::{sync::Arc, task::Waker};
 
+use futures::task::ArcWake;
 use parking_lot::Mutex;
 
 #[derive(Debug, Default)]
@@ -24,9 +22,9 @@ impl OuterWaker {
     }
 }
 
-impl Wake for OuterWaker {
-    fn wake(self: Arc<Self>) {
-        let mut guard = self.parent_waker.lock();
+impl ArcWake for OuterWaker {
+    fn wake_by_ref(arc_self: &Arc<Self>) {
+        let mut guard = arc_self.parent_waker.lock();
         let parent_waker = guard.take();
         drop(guard);
 
