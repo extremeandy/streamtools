@@ -72,6 +72,17 @@ where
     }
 }
 
+impl<S> std::fmt::Debug for FastForward<S>
+where
+    S: std::fmt::Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("FlattenSwitch")
+            .field("inner", &self.inner)
+            .finish()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use futures::{stream, SinkExt};
