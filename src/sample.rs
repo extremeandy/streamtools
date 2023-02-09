@@ -1,4 +1,4 @@
-use futures::{Stream, StreamExt};
+use futures::{stream::FusedStream, Stream, StreamExt};
 use pin_project_lite::pin_project;
 use std::{
     pin::Pin,
@@ -87,6 +87,16 @@ impl<T: Stream, S: Stream> Stream for Sample<T, S> {
                 Poll::Pending // Sampler is Pending and inner has not terminated
             }
         }
+    }
+}
+
+impl<T, S> FusedStream for Sample<T, S>
+where
+    T: Stream,
+    S: Stream,
+{
+    fn is_terminated(&self) -> bool {
+        self.inner.is_none()
     }
 }
 
