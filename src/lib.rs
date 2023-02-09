@@ -1,6 +1,5 @@
 #![warn(missing_docs)]
 #![crate_name = "streamtools"]
-//#![cfg_attr(not(feature = "use_std"), no_std)]
 
 //! Additional stream combinators.
 //!
