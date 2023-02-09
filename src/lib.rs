@@ -2,6 +2,7 @@ use futures::Stream;
 
 mod fast_forward;
 mod flatten_switch;
+mod outer_waker;
 mod stream_ext;
 
 pub use fast_forward::*;

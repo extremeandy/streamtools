@@ -1,8 +1,9 @@
 use futures::Stream;
-use parking_lot::Mutex;
 use pin_project_lite::pin_project;
 use std::sync::Arc;
-use std::task::{Context, Poll, Wake, Waker};
+use std::task::{Context, Poll, Waker};
+
+use crate::outer_waker::OuterWaker;
 
 pin_project! {
     /// Stream for the [`flatten_switch`](super::StreamExt::flatten_switch) method.
@@ -85,10 +86,10 @@ where
     }
 }
 
-impl<St> std::fmt::Debug for FlattenSwitch<St>
+impl<S> std::fmt::Debug for FlattenSwitch<S>
 where
-    St: Stream + std::fmt::Debug,
-    St::Item: Stream + std::fmt::Debug,
+    S: Stream + std::fmt::Debug,
+    S::Item: Stream + std::fmt::Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("FlattenSwitch")
@@ -98,39 +99,10 @@ where
     }
 }
 
-#[derive(Debug, Default)]
-struct OuterWaker {
-    parent_waker: Mutex<Option<Waker>>,
-}
-
-impl OuterWaker {
-    /// Returns `true` if `wake()` has been called since we last called `insert()`,
-    /// OR if a waker has never been set.
-    /// This indicates that the outer waker was woken and that we should poll the outer
-    /// stream.
-    pub fn set_parent_waker(&self, waker: Waker) -> bool {
-        let mut guard = self.parent_waker.lock();
-        let previous_waker = guard.replace(waker);
-        drop(guard);
-
-        previous_waker.is_none()
-    }
-}
-
-impl Wake for OuterWaker {
-    fn wake(self: Arc<Self>) {
-        let mut guard = self.parent_waker.lock();
-        let parent_waker = guard.take();
-        drop(guard);
-
-        if let Some(parent_waker) = parent_waker {
-            parent_waker.wake_by_ref();
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
+    use parking_lot::Mutex;
+
     use super::*;
 
     pin_project! {
