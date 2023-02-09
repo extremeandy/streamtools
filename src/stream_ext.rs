@@ -18,7 +18,7 @@ pub trait StreamExt: Stream {
     /// This behaves like a [`WatchStream`] but can be applied to arbitrary streams without requiring a channel.
     ///
     /// [`Pending`]: std::task::Poll#variant.Pending
-    /// [`WatchStream`]: tokio_stream::wrappers::WatchStream
+    /// [`WatchStream`]: https://docs.rs/tokio-stream/latest/tokio_stream/wrappers/struct.WatchStream.html
     fn fast_forward(self) -> FastForward<Self>
     where
         Self: Sized,
