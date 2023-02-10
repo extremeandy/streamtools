@@ -39,7 +39,7 @@ where
 }
 
 impl<T: Stream, S: Stream> Stream for Sample<T, S> {
-    type Item = Option<T::Item>;
+    type Item = T::Item;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut task::Context<'_>) -> Poll<Option<Self::Item>> {
         let mut this = self.project();
@@ -67,14 +67,14 @@ impl<T: Stream, S: Stream> Stream for Sample<T, S> {
 
         match this.sampler.poll_next(cx) {
             Poll::Ready(Some(_)) => match this.value.take() {
-                Some(value) => Poll::Ready(Some(Some(value))), // Inner stream had value -> we yield Some
-                None => Poll::Ready(Some(None)), // Pending on the inner stream -> we yield None
+                Some(value) => Poll::Ready(Some(value)), // Inner stream had value -> we yield Some
+                None => Poll::Pending, // Pending on the inner stream -> we are pending
             },
             Poll::Ready(None) => {
                 // Drop the inner stream. If polled again we immediately return Poll::Ready(None)
                 this.inner.set(None);
                 match this.value.take() {
-                    Some(value) => Poll::Ready(Some(Some(value))), // Sampler has terminated but we still have one last value to emit.
+                    Some(value) => Poll::Ready(Some(value)), // Sampler has terminated but we still have one last value to emit.
                     None => Poll::Ready(None), // Sampler stream terminated and no value waiting -> we terminate immediately
                 }
             }
@@ -142,12 +142,11 @@ mod tests {
         assert_pending!(stream.poll_next_unpin(&mut cx));
 
         tx_sampler.send(()).await.unwrap();
-        assert_ready_eq!(stream.poll_next_unpin(&mut cx), Some(Some(1)));
+        assert_ready_eq!(stream.poll_next_unpin(&mut cx), Some(1));
         assert_pending!(stream.poll_next_unpin(&mut cx));
 
-        // Now we sample but there are no new values on the underlying so we get back a None
+        // Now we sample but there are no new values on the underlying so the stream emits nothing
         tx_sampler.send(()).await.unwrap();
-        assert_ready_eq!(stream.poll_next_unpin(&mut cx), Some(None));
         assert_pending!(stream.poll_next_unpin(&mut cx));
 
         tx.send(2).await.unwrap();
@@ -155,12 +154,12 @@ mod tests {
         assert_pending!(stream.poll_next_unpin(&mut cx));
 
         tx_sampler.send(()).await.unwrap();
-        assert_ready_eq!(stream.poll_next_unpin(&mut cx), Some(Some(3))); // Note we skipped 2 because when we sample, the last value was 3.
+        assert_ready_eq!(stream.poll_next_unpin(&mut cx), Some(3)); // Note we skipped 2 because when we sample, the last value was 3.
         assert_pending!(stream.poll_next_unpin(&mut cx));
 
         tx.send(4).await.unwrap();
         drop(tx_sampler); // Sampler terminated
-        assert_ready_eq!(stream.poll_next_unpin(&mut cx), Some(Some(4))); // Sampler terminates -> immediately yield last value
+        assert_ready_eq!(stream.poll_next_unpin(&mut cx), Some(4)); // Sampler terminates -> immediately yield last value
         assert_ready_eq!(stream.poll_next_unpin(&mut cx), None); // Once last value is yielded, stream is terminated
     }
 
@@ -180,7 +179,7 @@ mod tests {
         assert_pending!(stream.poll_next_unpin(&mut cx));
 
         tx_sampler.send(()).await.unwrap();
-        assert_ready_eq!(stream.poll_next_unpin(&mut cx), Some(Some(1)));
+        assert_ready_eq!(stream.poll_next_unpin(&mut cx), Some(1));
         assert_pending!(stream.poll_next_unpin(&mut cx));
 
         drop(tx); // Terminate the underlying stream
@@ -197,7 +196,7 @@ mod tests {
         let mut stream = Sample::new(stream::once(future::ready(1)), rx_sampler);
 
         tx_sampler.send(()).await.unwrap();
-        assert_ready_eq!(stream.poll_next_unpin(&mut cx), Some(Some(1))); // We take the last value on the inner that was ready when the sampler yielded ...
+        assert_ready_eq!(stream.poll_next_unpin(&mut cx), Some(1)); // We take the last value on the inner that was ready when the sampler yielded ...
         assert_ready_eq!(stream.poll_next_unpin(&mut cx), None); // ... before we finally terminate.
     }
 
@@ -218,17 +217,13 @@ mod tests {
             .await;
 
         let expected_results = vec![
-            (Duration::ZERO, Some(0)),
-            (Duration::from_millis(1500), Some(1000)),
-            (Duration::from_millis(3000), Some(3000)),
-            (Duration::from_millis(4500), Some(4000)),
-            (Duration::from_millis(6000), None),
-            (Duration::from_millis(7500), Some(7000)),
-            (Duration::from_millis(9000), Some(8999)),
-            (Duration::from_millis(10500), Some(10500)),
-            (Duration::from_millis(12000), None),
-            (Duration::from_millis(13500), None),
-            (Duration::from_millis(15000), None),
+            (Duration::ZERO, 0),
+            (Duration::from_millis(1500), 1000),
+            (Duration::from_millis(3000), 3000),
+            (Duration::from_millis(4500), 4000),
+            (Duration::from_millis(7500), 7000),
+            (Duration::from_millis(9000), 8999),
+            (Duration::from_millis(10500), 10500),
             // Note the tick at 15500 is lost: the sampler isn't ready yet, and then the stream terminates.
         ];
 

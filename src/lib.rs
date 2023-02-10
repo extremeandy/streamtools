@@ -8,7 +8,7 @@
 //! - `tokio-time`: Enables combinators which depend on the tokio crate and its time feature, in particular:
 //!   - [`sample_by_duration`](crate::StreamTools::sample_by_duration)
 //!   - [`sample_by_interval`](crate::StreamTools::sample_by_interval)
-#![doc(html_root_url = "https://docs.rs/streamtools/0.5.3/")]
+#![doc(html_root_url = "https://docs.rs/streamtools/0.6.0/")]
 
 use futures::Stream;
 
@@ -66,6 +66,8 @@ pub trait StreamTools: Stream {
     /// Samples values from the stream when the sampler yields.
     ///
     /// The stream terminates when either the input stream or the sampler stream terminate.
+    ///
+    /// If no value was seen on the input stream when the sampler yields, nothing will be yielded.
     ///
     /// This mirrors the behaviour of the [Sample](https://reactivex.io/documentation/operators/sample.html) operator in [ReactiveX](https://reactivex.io/).
     fn sample<S: Stream>(self, sampler: S) -> Sample<Self, S>
