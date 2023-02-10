@@ -116,7 +116,7 @@ pub trait StreamTools: Stream {
         Self: Sized,
     {
         let sampler = tokio_stream::wrappers::IntervalStream::new(interval);
-        Self::sample(self, sampler)
+        self.sample(sampler)
     }
 }
 
