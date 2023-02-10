@@ -12,7 +12,7 @@
 //! - `test-util`: Exposes utilities for testing streams, in particular:
 //!   - [`delay_items`](crate::test_util::delay_items)
 //!   - [`record_delay`](crate::StreamTools::record_delay)
-#![doc(html_root_url = "https://docs.rs/streamtools/0.6.0/")]
+#![doc(html_root_url = "https://docs.rs/streamtools/0.7.0/")]
 
 use futures::Stream;
 
@@ -20,6 +20,9 @@ mod fast_forward;
 mod flatten_switch;
 mod outer_waker;
 mod sample;
+
+#[cfg(feature = "tokio-time")]
+mod throttle_last;
 
 #[cfg(feature = "test-util")]
 mod record_delay;
@@ -31,6 +34,9 @@ pub mod test_util;
 pub use fast_forward::*;
 pub use flatten_switch::*;
 pub use sample::*;
+
+#[cfg(feature = "tokio-time")]
+pub use throttle_last::*;
 
 #[cfg(feature = "test-util")]
 pub use record_delay::*;
@@ -126,6 +132,22 @@ pub trait StreamTools: Stream {
     {
         let sampler = tokio_stream::wrappers::IntervalStream::new(interval);
         self.sample(sampler)
+    }
+
+    /// Throttles values from the stream at intervals of length `duration`, skipping all but the last value seen in each interval.
+    ///
+    /// Note that this behaves exactly the same as applying [`fast_forward`] followed by tokio's [`throttle`].
+    ///
+    /// The stream terminates after the input stream terminates and any pending timeout expires for the throttling.
+    ///
+    /// [`fast_forward`]: Self::fast_forward
+    /// [`throttle`]: https://docs.rs/tokio-stream/latest/tokio_stream/trait.StreamExt.html#method.throttle
+    #[cfg(feature = "tokio-time")]
+    fn throttle_last<'a>(self, duration: std::time::Duration) -> ThrottleLast<Self>
+    where
+        Self: Sized + Send + 'a,
+    {
+        ThrottleLast::new(duration, self)
     }
 
     /// Records the duration relative to the time this method was called at which each

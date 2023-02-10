@@ -12,13 +12,14 @@ The following icons are used to distinguish breaking changes from non-breaking c
 - 🔥: Breaking change (high impact: will require code changes for most users)
 - 💔: Breaking change (low impact: won't require code changes for most users)
 
-## Unreleased
+## 0.7.0
 
 ### Added 
 
-- Added "test-util" feature with some helper methods for testing such as `record_delay` and `delay_items`
+- 💔 Added `ThrottleLast` combinator.
+- Added "test-util" feature with some helper methods for testing such as `record_delay` and `delay_items`.
 
-## 0.6.0
+## 0.7.0
 
 ### Changed
 
