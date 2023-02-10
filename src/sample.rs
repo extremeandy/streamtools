@@ -116,13 +116,17 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::{future, time::Duration};
+    use std::future;
 
     use futures::{stream, SinkExt, StreamExt};
-    use tokio_stream::wrappers::IntervalStream;
+
     use tokio_test::{assert_pending, assert_ready_eq};
 
-    use crate::test_util::{delay_items, record_delay::StreamExt as RecordDelayStreamExt};
+    #[cfg(feature = "test-util")]
+    use tokio_stream::wrappers::IntervalStream;
+
+    #[cfg(feature = "test-util")]
+    use std::time::Duration;
 
     use super::*;
 
@@ -200,8 +204,12 @@ mod tests {
         assert_ready_eq!(stream.poll_next_unpin(&mut cx), None); // ... before we finally terminate.
     }
 
+    #[cfg(feature = "test-util")]
     #[tokio::test(flavor = "current_thread", start_paused = true)]
     async fn test_sample_with_interval() {
+        use crate::test_util::delay_items;
+        use crate::StreamTools;
+
         let sampler = IntervalStream::new(tokio::time::interval(Duration::from_millis(1500)));
 
         let delays = vec![

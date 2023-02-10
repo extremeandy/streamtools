@@ -13,13 +13,14 @@ futures = "0.3.26"
 pin-project-lite = "0.2.9"
 parking_lot = "0.12.1"
 tokio = { version = "1.25.0", optional = true, features = ["time"] }
-tokio-stream = { version = "0.1.11", optional = true }
+tokio-stream = { version = "0.1.11", optional = true, features = ["time"] }
 
 [dev-dependencies]
 tokio = { version = "1.25.0", features = ["rt-multi-thread", "sync", "macros", "time"] }
-tokio-stream = { version = "0.1.11", features = ["sync"] }
+tokio-stream = { version = "0.1.11", features = ["sync", "time"] }
 tokio-test = "0.4.2"
 
 [features]
 default = []
 tokio-time = ["dep:tokio", "dep:tokio-stream"]
+test-util = ["tokio-time"]
