@@ -12,7 +12,7 @@
 //! - `test-util`: Exposes utilities for testing streams, in particular:
 //!   - [`delay_items`](crate::test_util::delay_items)
 //!   - [`record_delay`](crate::StreamTools::record_delay)
-#![doc(html_root_url = "https://docs.rs/streamtools/0.7.0/")]
+#![doc(html_root_url = "https://docs.rs/streamtools/0.7.1/")]
 
 use futures::Stream;
 

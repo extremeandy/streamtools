@@ -19,7 +19,7 @@ The following icons are used to distinguish breaking changes from non-breaking c
 - 💔 Added `ThrottleLast` combinator.
 - Added "test-util" feature with some helper methods for testing such as `record_delay` and `delay_items`.
 
-## 0.7.0
+## 0.6.0
 
 ### Changed
 
