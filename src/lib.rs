@@ -24,6 +24,9 @@ mod sample;
 #[cfg(feature = "tokio-time")]
 mod throttle_last;
 
+#[cfg(feature = "tokio-sync")]
+mod broadcast;
+
 #[cfg(feature = "test-util")]
 mod record_delay;
 
@@ -37,6 +40,9 @@ pub use sample::*;
 
 #[cfg(feature = "tokio-time")]
 pub use throttle_last::*;
+
+#[cfg(feature = "tokio-sync")]
+pub use broadcast::*;
 
 #[cfg(feature = "test-util")]
 pub use record_delay::*;
@@ -148,6 +154,16 @@ pub trait StreamTools: Stream {
         Self: Sized + Send + 'a,
     {
         ThrottleLast::new(duration, self)
+    }
+
+    /// TODO: DOCS!
+    #[cfg(feature = "tokio-sync")]
+    fn broadcast<'a>(self, capacity: usize) -> Broadcast<Self>
+    where
+        Self: Sized + Send + 'a,
+        Self::Item: Clone + Send + 'a,
+    {
+        assert_stream(Broadcast::new(self, capacity))
     }
 
     /// Records the duration relative to the time this method was called at which each
