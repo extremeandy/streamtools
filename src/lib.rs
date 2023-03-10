@@ -12,9 +12,9 @@
 //! - `test-util`: Exposes utilities for testing streams, in particular:
 //!   - [`delay_items`](crate::test_util::delay_items)
 //!   - [`record_delay`](crate::StreamTools::record_delay)
-#![doc(html_root_url = "https://docs.rs/streamtools/0.7.2/")]
+#![doc(html_root_url = "https://docs.rs/streamtools/0.7.3/")]
 
-use futures::Stream;
+use futures::{stream::Map, Stream};
 
 mod fast_forward;
 mod flatten_switch;
@@ -78,6 +78,20 @@ pub trait StreamTools: Stream {
     {
         let stream = FlattenSwitch::new(self);
         assert_stream::<<Self::Item as Stream>::Item, _>(stream)
+    }
+
+    /// Maps a stream like [`StreamExt::map`] but flattens nested [`Stream`]s using [`flatten_switch`](Self::flatten_switch).
+    ///
+    /// [`StreamExt::map`]: futures::StreamExt
+    fn flat_map_switch<U, F>(self, f: F) -> FlattenSwitch<Map<Self, F>>
+    where
+        U: Stream + Unpin,
+        F: FnMut(Self::Item) -> U,
+        Self::Item: Stream,
+        Self: Sized,
+    {
+        let stream = FlattenSwitch::new(futures::StreamExt::map(self, f));
+        assert_stream::<U::Item, _>(stream)
     }
 
     /// Samples values from the stream when the sampler yields.
