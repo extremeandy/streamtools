@@ -80,7 +80,7 @@ pub trait StreamTools: Stream {
         assert_stream::<<Self::Item as Stream>::Item, _>(stream)
     }
 
-    /// Maps a stream like [`StreamExt::map`] but flattens nested [`Stream`]s using [`flatten_switch`](Self::flatten_switch).
+    /// Maps a stream like [`StreamExt::map`] but flattens nested [Stream]s using [`flatten_switch`](Self::flatten_switch).
     ///
     /// [`StreamExt::map`]: futures::StreamExt
     fn flat_map_switch<U, F>(self, f: F) -> FlattenSwitch<Map<Self, F>>
