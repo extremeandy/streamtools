@@ -12,6 +12,12 @@ The following icons are used to distinguish breaking changes from non-breaking c
 - 🔥: Breaking change (high impact: will require code changes for most users)
 - 💔: Breaking change (low impact: won't require code changes for most users)
 
+## 0.7.2
+
+### Fixed
+
+- Fixed an issue with `FlattenSwitch` where the inner stream could be polled again after termination.
+
 ## 0.7.0
 
 ### Added 

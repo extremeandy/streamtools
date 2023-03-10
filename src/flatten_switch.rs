@@ -68,13 +68,19 @@ where
             }
         };
 
-        match this.inner.as_pin_mut() {
+        match this.inner.as_mut().as_pin_mut() {
             Some(inner) => match inner.poll_next(cx) {
                 Poll::Ready(value) => match value {
                     Some(value) => Poll::Ready(Some(value)),
+                    None => {
+                        // If the inner stream terminated, clear it so we don't poll it again.
+                        // This is important because some Streams don't support being polled again after
+                        // termination, e.g. stream::unfold.
+                        this.inner.set(None);
 
-                    // The inner stream can terminate but we don't terminate until the outer stream ends.
-                    None => Poll::Pending,
+                        // The inner stream can terminate but we don't terminate until the outer stream ends.
+                        Poll::Pending
+                    }
                 },
 
                 // Waiting on inner stream to emit next
@@ -102,7 +108,11 @@ where
 
 #[cfg(test)]
 mod tests {
+    use std::future;
+
+    use futures::{stream, FutureExt, StreamExt};
     use parking_lot::Mutex;
+    use tokio_test::{assert_pending, assert_ready_eq};
 
     use super::*;
 
@@ -240,5 +250,40 @@ mod tests {
         drop(tx);
         assert_eq!(switch_stream.poll_next_unpin(&mut cx), Poll::Ready(None));
         assert_outer_polled();
+    }
+
+    #[tokio::test]
+    async fn test_inner_not_polled_twice_after_termination() {
+        let inner_polled = Arc::new(Mutex::new(false));
+
+        let take_inner_polled = || -> bool {
+            let mut guard = inner_polled.lock();
+            std::mem::replace(&mut guard, false)
+        };
+
+        let assert_inner_polled = || assert!(take_inner_polled());
+        let assert_inner_not_polled = || assert!(!take_inner_polled());
+
+        let first_inner = MockStream {
+            inner: stream::once(future::ready(1)),
+            polled: Arc::clone(&inner_polled),
+        };
+
+        // Outer stream consists of first_inner which emits one value and then completes, but never yields any further streams and is permanently
+        // pending for the 2nd stream.
+        let outer_stream =
+            stream::once(future::ready(first_inner)).chain(future::pending().into_stream());
+
+        let mut stream = FlattenSwitch::new(outer_stream);
+
+        let waker = futures::task::noop_waker_ref();
+        let mut cx = std::task::Context::from_waker(&waker);
+
+        assert_ready_eq!(stream.poll_next_unpin(&mut cx), Some(1));
+        assert_inner_polled();
+        assert_pending!(stream.poll_next_unpin(&mut cx));
+        assert_inner_polled();
+        assert_pending!(stream.poll_next_unpin(&mut cx));
+        assert_inner_not_polled();
     }
 }
