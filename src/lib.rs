@@ -12,7 +12,7 @@
 //! - `test-util`: Exposes utilities for testing streams, in particular:
 //!   - [`delay_items`](crate::test_util::delay_items)
 //!   - [`record_delay`](crate::StreamTools::record_delay)
-#![doc(html_root_url = "https://docs.rs/streamtools/0.7.3/")]
+#![doc(html_root_url = "https://docs.rs/streamtools/0.7.4/")]
 
 use futures::{stream::Map, Stream};
 
@@ -85,9 +85,8 @@ pub trait StreamTools: Stream {
     /// [`StreamExt::map`]: futures::StreamExt
     fn flat_map_switch<U, F>(self, f: F) -> FlattenSwitch<Map<Self, F>>
     where
-        U: Stream + Unpin,
         F: FnMut(Self::Item) -> U,
-        Self::Item: Stream,
+        U: Stream,
         Self: Sized,
     {
         let stream = FlattenSwitch::new(futures::StreamExt::map(self, f));

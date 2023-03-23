@@ -12,6 +12,12 @@ The following icons are used to distinguish breaking changes from non-breaking c
 - 🔥: Breaking change (high impact: will require code changes for most users)
 - 💔: Breaking change (low impact: won't require code changes for most users)
 
+## 0.7.4
+
+### Fixed
+
+- Removed faulty constraints on `flat_map_switch` combinator
+
 ## 0.7.3
 
 ### Added

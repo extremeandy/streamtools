@@ -11,7 +11,7 @@ How to use with Cargo:
 
 ```toml
 [dependencies]
-streamtools = "0.7.3"
+streamtools = "0.7.4"
 ```
 
 ## License
