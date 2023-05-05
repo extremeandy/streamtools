@@ -65,28 +65,39 @@ impl<T: Stream, S: Stream> Stream for Sample<T, S> {
             }
         }
 
-        match this.sampler.poll_next(cx) {
-            Poll::Ready(Some(_)) => match this.value.take() {
-                Some(value) => Poll::Ready(Some(value)), // Inner stream had value -> we yield Some
-                None => Poll::Pending, // Pending on the inner stream -> we are pending
-            },
-            Poll::Ready(None) => {
-                // Drop the inner stream. If polled again we immediately return Poll::Ready(None)
-                this.inner.set(None);
-                match this.value.take() {
-                    Some(value) => Poll::Ready(Some(value)), // Sampler has terminated but we still have one last value to emit.
-                    None => Poll::Ready(None), // Sampler stream terminated and no value waiting -> we terminate immediately
-                }
-            }
-            Poll::Pending => {
-                // Inner stream terminated, so we terminate
-                if this.inner.is_none() {
-                    return Poll::Ready(None);
-                }
+        // Make sure we poll the sampler until pending so that we register the waker. We must
+        // not returning Poll::Pending unless we have definitely received Poll::Pending from the sampler,
+        // otherwise we will not be woken by the sampler.
+        while let Poll::Ready(ready) = this.sampler.poll_next_unpin(cx) {
+            match ready {
+                Some(_) => match this.value.take() {
+                    Some(value) => {
+                        return Poll::Ready(Some(value)); // Inner stream had value -> we yield Some
+                    }
+                    None => {
+                        // Pending on the inner stream -> we will return pending. We just need to make sure we poll
+                        // the sampler until pending so we receive a wakeup.
+                        continue;
+                    }
+                },
+                None => {
+                    // Drop the inner stream. If polled again we immediately return Poll::Ready(None)
+                    this.inner.set(None);
 
-                Poll::Pending // Sampler is Pending and inner has not terminated
+                    return match this.value.take() {
+                        Some(value) => Poll::Ready(Some(value)), // Sampler has terminated but we still have one last value to emit.
+                        None => Poll::Ready(None), // Sampler stream terminated and no value waiting -> we terminate immediately
+                    };
+                }
             }
         }
+
+        // Inner stream terminated, so we terminate
+        if this.inner.is_none() {
+            return Poll::Ready(None);
+        }
+
+        Poll::Pending // Sampler is Pending and inner has not terminated
     }
 }
 

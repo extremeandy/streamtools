@@ -12,6 +12,12 @@ The following icons are used to distinguish breaking changes from non-breaking c
 - 🔥: Breaking change (high impact: will require code changes for most users)
 - 💔: Breaking change (low impact: won't require code changes for most users)
 
+## 0.7.5
+
+### Fixed
+
+- Fix bug in `sample` where the sampler was not being polled until `Pending` when the inner value was not ready yet, which meant that the waker was not being called on the sampler
+
 ## 0.7.4
 
 ### Fixed
