@@ -77,7 +77,7 @@ where
     S: std::fmt::Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("FlattenSwitch")
+        f.debug_struct("FastForward")
             .field("inner", &self.inner)
             .finish()
     }
