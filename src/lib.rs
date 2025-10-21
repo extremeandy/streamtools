@@ -1,5 +1,6 @@
 #![warn(missing_docs)]
 #![crate_name = "streamtools"]
+// I don't know what this line does but rust lint doesn't like it..?
 #![cfg_attr(all(doc, CHANNEL_NIGHTLY), feature(doc_auto_cfg))]
 
 //! Additional stream combinators.
