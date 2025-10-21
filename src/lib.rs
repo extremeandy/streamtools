@@ -14,10 +14,14 @@
 //!   - [`record_delay`](crate::StreamTools::record_delay)
 #![doc(html_root_url = "https://docs.rs/streamtools/0.7.5/")]
 
+use either_or_both::EitherOrBoth;
 use futures::{stream::Map, Stream};
+use merge_join_by::MergeJoinBy;
+use std::cmp::Ordering;
 
 mod fast_forward;
 mod flatten_switch;
+mod merge_join_by;
 mod outer_waker;
 mod sample;
 
@@ -91,6 +95,78 @@ pub trait StreamTools: Stream {
     {
         let stream = FlattenSwitch::new(futures::StreamExt::map(self, f));
         assert_stream::<U::Item, _>(stream)
+    }
+
+    /// A stream that merges items from two streams in ascending order,
+    /// while also perserving information of where the items came from.
+    ///
+    /// The resulting stream will look at the tips of the two input streams `L` and `R`
+    /// and compare the items `l: L::Item` and `r: R::Item` using the provided `comparison` function.
+    /// The stream will yield:
+    ///
+    /// - `EitherOrBoth::Left(l)` if `l < r` or if `R` is done, and remove `l` from its source stream
+    /// - `EitherOrBoth::Both(l, r)` if `l == r` and remove both `l` and `r` from their source streams
+    /// - `EitherOrBoth::Right(r)` if `l > r` or if `L` is done and remove `r` from its source stream
+    ///
+    /// That is to say it chooses the *smaller* item, or both when they are equal.
+    ///
+    ///
+    /// # Lengths
+    ///
+    /// The input streams can be of different length. After one stream has run out, the items of the other
+    /// will just be appended to the output stream using the appropriate `Left`/`Right` variant.
+    ///
+    ///
+    /// # Sort
+    ///
+    /// If the input streams are sorted into ascending order according to the same criteria as provided by `comparison`,
+    /// then the output stream will be sorted too.
+    ///
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # futures::executor::block_on(async {
+    /// use streamtools::StreamTools;
+    /// use futures::stream::{self, StreamExt};
+    /// use either_or_both::EitherOrBoth::{Left, Right, Both};
+    ///
+    /// let left = stream::iter(vec![1, 3, 4, 5]);
+    /// let right = stream::iter(vec![2, 3, 3]);
+    ///
+    /// let stream = left.merge_join_by(right, Ord::cmp);
+    ///
+    /// let result: Vec<_> = stream.collect().await;
+    ///
+    /// assert_eq!(result,
+    ///   vec![
+    ///     Left(1),
+    ///     Right(2),
+    ///     Both(3, 3),
+    ///     Right(3), // The right stream is exhausted here.
+    ///     Left(4),
+    ///     Left(5)
+    ///   ]
+    /// );
+    /// # });
+    /// ```
+    ///
+    ///
+    /// # See also
+    ///
+    /// [`Itertools::merge_join_by`](https://docs.rs/itertools/latest/itertools/trait.Itertools.html#method.merge_join_by) implements the same combinator for iterators.
+    fn merge_join_by<St, F>(
+        self,
+        other: St,
+        comparison: F,
+    ) -> impl Stream<Item = EitherOrBoth<Self::Item, St::Item>>
+    where
+        Self: Sized,
+        St: Stream,
+        F: Fn(&Self::Item, &St::Item) -> Ordering,
+    {
+        let stream = MergeJoinBy::new(self, other, comparison);
+        assert_stream(stream)
     }
 
     /// Samples values from the stream when the sampler yields.
