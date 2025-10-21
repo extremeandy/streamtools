@@ -1,13 +1,14 @@
 [package]
 name = "streamtools"
 version = "0.7.5"
-edition = "2021"
+edition = "2024"
 authors = ["extremeandy"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/extremeandy/streamtools"
 description = "Additional stream combinators"
 readme = "README.md"
-rust-version = "1.65.0"
+# Oldest 2024 edition compatible version
+rust-version = "1.85.0"
 
 [dependencies]
 futures = "0.3.28"
