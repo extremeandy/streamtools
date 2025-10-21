@@ -9,9 +9,8 @@ Please read the [API documentation here](https://docs.rs/streamtools/).
 
 How to use with Cargo:
 
-```toml
-[dependencies]
-streamtools = "0.7.5"
+```commandline
+$ cargo add streamtools
 ```
 
 ## License

@@ -7,10 +7,25 @@ and this project (will try to) adhere to [Semantic Versioning](https://semver.or
 
 ### Legend
 
-The following icons are used to distinguish breaking changes from non-breaking changes. 
+The following icons are used to distinguish breaking changes from non-breaking changes.
 
 - 🔥: Breaking change (high impact: will require code changes for most users)
 - 💔: Breaking change (low impact: won't require code changes for most users)
+
+## 0.7.6
+
+### Added
+
+- Added `merge_join_by` combinator
+
+### Changed
+
+- Minimum rust version bumped to `1.85.0` as part of moving to rust 2024 edition
+
+### Security
+
+- Optional dependency `tokio` bumped from a version with a [RustSec advisory](https://rustsec.org/advisories/RUSTSEC-2025-0023)
+
 
 ## 0.7.5
 
@@ -38,7 +53,7 @@ The following icons are used to distinguish breaking changes from non-breaking c
 
 ## 0.7.0
 
-### Added 
+### Added
 
 - 💔 Added `ThrottleLast` combinator.
 - Added "test-util" feature with some helper methods for testing such as `record_delay` and `delay_items`.
