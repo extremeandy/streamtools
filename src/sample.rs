@@ -144,7 +144,7 @@ mod tests {
     #[tokio::test]
     async fn test_sample() {
         let waker = futures::task::noop_waker_ref();
-        let mut cx = std::task::Context::from_waker(&waker);
+        let mut cx = std::task::Context::from_waker(waker);
 
         let (mut tx, rx) = futures::channel::mpsc::unbounded();
         let (mut tx_sampler, rx_sampler) = futures::channel::mpsc::unbounded();
@@ -181,7 +181,7 @@ mod tests {
     #[tokio::test]
     async fn test_sample_underlying_terminates() {
         let waker = futures::task::noop_waker_ref();
-        let mut cx = std::task::Context::from_waker(&waker);
+        let mut cx = std::task::Context::from_waker(waker);
 
         let (mut tx, rx) = futures::channel::mpsc::unbounded();
         let (mut tx_sampler, rx_sampler) = futures::channel::mpsc::unbounded();
@@ -204,7 +204,7 @@ mod tests {
     #[tokio::test]
     async fn test_sample_underlying_terminates_but_sample_yields() {
         let waker = futures::task::noop_waker_ref();
-        let mut cx = std::task::Context::from_waker(&waker);
+        let mut cx = std::task::Context::from_waker(waker);
 
         let (mut tx_sampler, rx_sampler) = futures::channel::mpsc::unbounded();
 

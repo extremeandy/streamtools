@@ -93,7 +93,7 @@ mod tests {
     #[tokio::test]
     async fn test_fast_forward() {
         let waker = futures::task::noop_waker_ref();
-        let mut cx = std::task::Context::from_waker(&waker);
+        let mut cx = std::task::Context::from_waker(waker);
 
         let (mut tx, rx) = futures::channel::mpsc::unbounded();
 
@@ -123,7 +123,7 @@ mod tests {
     #[tokio::test]
     async fn test_fast_forward_empty_stream() {
         let waker = futures::task::noop_waker_ref();
-        let mut cx = std::task::Context::from_waker(&waker);
+        let mut cx = std::task::Context::from_waker(waker);
 
         let mut stream = FastForward::new(stream::empty::<()>());
         assert_ready_eq!(stream.poll_next_unpin(&mut cx), None);
@@ -132,7 +132,7 @@ mod tests {
     #[tokio::test]
     async fn test_fast_forward_drop_before_polled() {
         let waker = futures::task::noop_waker_ref();
-        let mut cx = std::task::Context::from_waker(&waker);
+        let mut cx = std::task::Context::from_waker(waker);
 
         let (mut tx, rx) = futures::channel::mpsc::unbounded();
 

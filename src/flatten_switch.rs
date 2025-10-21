@@ -147,7 +147,7 @@ mod tests {
         use tokio_stream::wrappers::BroadcastStream;
 
         let waker = futures::task::noop_waker_ref();
-        let mut cx = std::task::Context::from_waker(&waker);
+        let mut cx = std::task::Context::from_waker(waker);
 
         let (tx_inner1, rx_inner1) = broadcast::channel(32);
         let (tx_inner2, rx_inner2) = broadcast::channel(32);
@@ -277,7 +277,7 @@ mod tests {
         let mut stream = FlattenSwitch::new(outer_stream);
 
         let waker = futures::task::noop_waker_ref();
-        let mut cx = std::task::Context::from_waker(&waker);
+        let mut cx = std::task::Context::from_waker(waker);
 
         assert_ready_eq!(stream.poll_next_unpin(&mut cx), Some(1));
         assert_inner_polled();
