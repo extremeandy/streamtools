@@ -102,7 +102,7 @@ pub trait StreamTools: Stream {
     }
 
     /// A stream that merges items from two streams in ascending order,
-    /// while also perserving information of where the items came from.
+    /// while also preserving information of where the items came from.
     ///
     /// The resulting stream will look at the tips of the two input streams `L` and `R`
     /// and compare the items `l: L::Item` and `r: R::Item` using the provided `comparison` function.
