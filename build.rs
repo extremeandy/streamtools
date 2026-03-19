@@ -1,6 +1,6 @@
 // Detect the rustc channel
 //
-use rustc_version::{version_meta, Channel};
+use rustc_version::{Channel, version_meta};
 
 fn main() {
     // Set cfg flags depending on release channel

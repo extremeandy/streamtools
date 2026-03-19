@@ -3,7 +3,7 @@ use futures::{Future, StreamExt};
 use tokio::time::{Duration, Instant, Sleep};
 
 use std::pin::Pin;
-use std::task::{self, ready, Poll};
+use std::task::{self, Poll, ready};
 
 use pin_project_lite::pin_project;
 
@@ -48,7 +48,7 @@ where
         let Some(mut inner) = this.inner.as_mut().as_pin_mut() else {
             // Last time we polled, the inner stream terminated, but we yielded a value.
             // If we are here then it's time to terminate.
-            return Poll::Ready(None)
+            return Poll::Ready(None);
         };
 
         let dur = *this.duration;
@@ -98,7 +98,7 @@ mod tests {
 
     use futures::StreamExt;
 
-    use crate::{test_util::delay_items, StreamTools, ThrottleLast};
+    use crate::{StreamTools, ThrottleLast, test_util::delay_items};
 
     #[tokio::test(flavor = "current_thread", start_paused = true)]
     async fn test_throttle_last() {

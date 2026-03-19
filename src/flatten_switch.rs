@@ -1,5 +1,5 @@
-use futures::task;
 use futures::Stream;
+use futures::task;
 use pin_project_lite::pin_project;
 use std::sync::Arc;
 use std::task::{Context, Poll};
@@ -110,7 +110,7 @@ where
 mod tests {
     use std::future;
 
-    use futures::{stream, FutureExt, StreamExt};
+    use futures::{FutureExt, StreamExt, stream};
     use parking_lot::Mutex;
     use tokio_test::{assert_pending, assert_ready_eq};
 
@@ -142,7 +142,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_flatten_switch() {
-        use futures::{channel::mpsc, SinkExt, StreamExt};
+        use futures::{SinkExt, StreamExt, channel::mpsc};
         use tokio::sync::broadcast::{self, error::SendError};
         use tokio_stream::wrappers::BroadcastStream;
 

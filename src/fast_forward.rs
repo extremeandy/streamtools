@@ -1,6 +1,6 @@
 use std::{pin::Pin, task::Poll};
 
-use futures::{stream::FusedStream, Stream, StreamExt};
+use futures::{Stream, StreamExt, stream::FusedStream};
 use pin_project_lite::pin_project;
 
 pin_project! {
@@ -35,7 +35,7 @@ where
         let Some(mut inner) = this.inner.as_mut().as_pin_mut() else {
             // Last time we polled, the inner stream terminated, but we yielded a value.
             // If we are here then it's time to terminate.
-            return Poll::Ready(None)
+            return Poll::Ready(None);
         };
 
         let mut last_value = None;
@@ -85,7 +85,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use futures::{stream, SinkExt};
+    use futures::{SinkExt, stream};
     use tokio_test::{assert_pending, assert_ready_eq};
 
     use super::*;

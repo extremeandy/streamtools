@@ -1,9 +1,9 @@
 //! Implementation of the `StreamTools::merge_join_by` combinator.
 
 use either_or_both::EitherOrBoth;
-use futures::stream::Fuse;
 use futures::Stream;
 use futures::StreamExt;
+use futures::stream::Fuse;
 use pin_project_lite::pin_project;
 use std::{
     cmp::{self, Ordering},

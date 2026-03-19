@@ -1,4 +1,4 @@
-use futures::{stream::FusedStream, Stream, StreamExt};
+use futures::{Stream, StreamExt, stream::FusedStream};
 use pin_project_lite::pin_project;
 use std::{
     pin::Pin,
@@ -47,7 +47,7 @@ impl<T: Stream, S: Stream> Stream for Sample<T, S> {
         let Some(mut inner) = this.inner.as_mut().as_pin_mut() else {
             // Last time we polled, the inner stream terminated, but we yielded a value.
             // If we are here then it's time to terminate.
-            return Poll::Ready(None)
+            return Poll::Ready(None);
         };
 
         // Fast forward to the latest value on the inner stream
@@ -129,7 +129,7 @@ where
 mod tests {
     use std::future;
 
-    use futures::{stream, SinkExt, StreamExt};
+    use futures::{SinkExt, StreamExt, stream};
 
     use tokio_test::{assert_pending, assert_ready_eq};
 
@@ -218,8 +218,8 @@ mod tests {
     #[cfg(feature = "test-util")]
     #[tokio::test(flavor = "current_thread", start_paused = true)]
     async fn test_sample_with_interval() {
-        use crate::test_util::delay_items;
         use crate::StreamTools;
+        use crate::test_util::delay_items;
 
         let sampler = IntervalStream::new(tokio::time::interval(Duration::from_millis(1500)));
 
