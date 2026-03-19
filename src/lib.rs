@@ -17,15 +17,18 @@
 #![doc(html_root_url = "https://docs.rs/streamtools/0.7.6/")]
 
 use either_or_both::EitherOrBoth;
-use futures::{stream::Map, Stream};
-use merge_join_by::MergeJoinBy;
+use futures::{Stream, TryStream, stream::Map};
 use std::cmp::Ordering;
+
+use merge_join_by::MergeJoinBy;
+use try_count::TryCount;
 
 mod fast_forward;
 mod flatten_switch;
 mod merge_join_by;
 mod outer_waker;
 mod sample;
+mod try_count;
 
 #[cfg(feature = "tokio-time")]
 mod throttle_last;
@@ -249,6 +252,34 @@ pub trait StreamTools: Stream {
         Self: Sized,
     {
         RecordDelay::new(self)
+    }
+
+    /// Try to drive the stream to completion and count the results.
+    ///
+    /// If an error is encountered it's returned right away and the stream is dropped.
+    /// `Ok` results are always dropped.
+    ///
+    /// See [`futures::StreamExt::count()`](https://docs.rs/futures/latest/futures/stream/trait.StreamExt.html#method.count) for a non short circuiting version of this.
+    ///
+    /// ```rust
+    /// # futures::executor::block_on(async {
+    /// use streamtools::StreamTools;
+    /// use futures::stream;
+    ///
+    /// let oks = stream::iter(vec![Ok::<&str, &str>("The"), Ok("values"), Ok("inside"), Ok("don't"), Ok("matter")]);
+    /// let count = oks.try_count().await;
+    /// assert_eq!(count, Ok(5));
+    ///
+    /// let erring = stream::iter(vec![Ok("Short"), Ok("circuits"), Err("on"), Ok("first"), Err("Err")]);
+    /// let err = erring.try_count().await;
+    /// assert_eq!(err, Err("on"));
+    /// # });
+    /// ```
+    fn try_count(self) -> impl Future<Output = Result<usize, Self::Error>>
+    where
+        Self: Sized + TryStream,
+    {
+        TryCount::new(self)
     }
 }
 

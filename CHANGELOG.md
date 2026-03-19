@@ -12,6 +12,13 @@ The following icons are used to distinguish breaking changes from non-breaking c
 - 🔥: Breaking change (high impact: will require code changes for most users)
 - 💔: Breaking change (low impact: won't require code changes for most users)
 
+## 0.7.7
+
+### Added
+
+- Added `try_count`
+
+
 ## 0.7.6
 
 ### Added

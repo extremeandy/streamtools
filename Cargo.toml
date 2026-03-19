@@ -1,6 +1,6 @@
 [package]
 name = "streamtools"
-version = "0.7.6"
+version = "0.7.7"
 edition = "2024"
 authors = ["extremeandy"]
 license = "MIT OR Apache-2.0"
@@ -9,6 +9,8 @@ description = "Additional stream combinators"
 readme = "README.md"
 # Oldest 2024 edition compatible version
 rust-version = "1.85.0"
+# Max 5 from here: https://crates.io/category_slugs
+categories = ["algorithms", "asynchronous"]
 
 [dependencies]
 futures = "0.3.28"
