@@ -254,12 +254,15 @@ pub trait StreamTools: Stream {
         RecordDelay::new(self)
     }
 
-    /// Try to drive the stream to completion and count the results.
+    /// Try to count the items in a stream of results.
     ///
     /// If an error is encountered it's returned right away and the stream is dropped.
     /// `Ok` results are always dropped.
     ///
     /// See [`futures::StreamExt::count()`](https://docs.rs/futures/latest/futures/stream/trait.StreamExt.html#method.count) for a non short circuiting version of this.
+    ///
+    ///
+    /// # Example
     ///
     /// ```rust
     /// # futures::executor::block_on(async {
